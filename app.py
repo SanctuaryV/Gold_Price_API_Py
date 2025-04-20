@@ -4,18 +4,27 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from webdriver_manager.chrome import ChromeDriverManager
 import time
+import shutil
 
 app = Flask(__name__)
 
 @app.route("/gold-price")
 def get_gold_price():
+    # ตรวจสอบตำแหน่งของ Chrome binary
+    chrome_path = shutil.which("chromium")
+    if not chrome_path:
+        chrome_path = shutil.which("google-chrome")
+    
+    if not chrome_path:
+        return jsonify({"error": "Chrome binary not found"}), 500
+
     options = webdriver.ChromeOptions()
     options.add_argument('--headless')
     options.add_argument('--no-sandbox')
     options.add_argument('--disable-dev-shm-usage')
 
-    # กำหนดตำแหน่งของ Chrome binary ใน Render
-    options.binary_location = "/usr/bin/chromium"  # หรือตำแหน่งที่ Render ติดตั้ง Chromium
+    # กำหนด path ให้ Selenium ใช้
+    options.binary_location = chrome_path
 
     service = Service(ChromeDriverManager().install())
     driver = webdriver.Chrome(service=service, options=options)
