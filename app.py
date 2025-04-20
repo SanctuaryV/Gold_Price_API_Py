@@ -1,46 +1,40 @@
 from flask import Flask, jsonify
 from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
-from webdriver_manager.chrome import ChromeDriverManager
+import subprocess
+import os
 import time
-import shutil
 
 app = Flask(__name__)
 
+def install_chromium():
+    subprocess.run("apt-get update", shell=True, check=True)
+    subprocess.run("apt-get install -y chromium", shell=True, check=True)
+    os.environ["CHROME_BIN"] = "/usr/bin/chromium"
+
 @app.route("/gold-price")
 def get_gold_price():
-    # ตรวจสอบตำแหน่งของ Chrome binary
-    chrome_path = shutil.which("chromium")
-    if not chrome_path:
-        chrome_path = shutil.which("google-chrome")
-    
-    if not chrome_path:
-        return jsonify({"error": "Chrome binary not found"}), 500
-
-    options = webdriver.ChromeOptions()
-    options.add_argument('--headless')
-    options.add_argument('--no-sandbox')
-    options.add_argument('--disable-dev-shm-usage')
-
-    # กำหนด path ให้ Selenium ใช้
-    options.binary_location = chrome_path
-
-    service = Service(ChromeDriverManager().install())
-    driver = webdriver.Chrome(service=service, options=options)
-    driver.get("https://th.investing.com/currencies/xau-usd")
-    time.sleep(5)
-
-    data = {
-        "gold price XAU/USD": {
-            "lastPrice": None,
-            "lowPrice": None,
-            "highPrice": None,
-            "openPrice": None
-        }
-    }
-
     try:
+        install_chromium()
+        options = webdriver.ChromeOptions()
+        options.binary_location = "/usr/bin/chromium"
+        options.add_argument('--headless')
+        options.add_argument('--no-sandbox')
+        options.add_argument('--disable-dev-shm-usage')
+
+        driver = webdriver.Chrome(options=options)
+        driver.get("https://th.investing.com/currencies/xau-usd")
+        time.sleep(5)
+
+        data = {
+            "gold price XAU/USD": {
+                "lastPrice": None,
+                "lowPrice": None,
+                "highPrice": None,
+                "openPrice": None
+            }
+        }
+
         price_element = driver.find_element(By.CSS_SELECTOR, 'div[data-test="instrument-price-last"]')
         data["gold price XAU/USD"]["lastPrice"] = price_element.text
 
@@ -53,13 +47,20 @@ def get_gold_price():
         open_element = driver.find_element(By.CSS_SELECTOR, 'dd[data-test="open"]')
         data["gold price XAU/USD"]["openPrice"] = open_element.text
 
+        return jsonify(data)
+
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
     finally:
-        driver.quit()
+        try:
+            driver.quit()
+        except:
+            pass
 
-    return jsonify(data)
+@app.route("/")
+def index():
+    return "Gold Price API is running!"
 
-# รัน Flask app
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
