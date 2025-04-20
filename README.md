@@ -81,7 +81,8 @@ python app.py
 
 ## Dependencies
 
-- Flask==2.1.2
+- Flask==2.2.3
+- Werkzeug==2.2.3
 - selenium==4.6.0
 - webdriver-manager==3.8.4
 
