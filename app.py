@@ -1,5 +1,4 @@
 from flask import Flask, jsonify
-from pyngrok import ngrok
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
@@ -7,10 +6,6 @@ from webdriver_manager.chrome import ChromeDriverManager
 import time
 
 app = Flask(__name__)
-
-# เปิด tunnel ngrok ไปยังพอร์ต 5000
-public_url = ngrok.connect(5000)
-print("🚀 Public URL:", public_url)
 
 @app.route("/gold-price")
 def get_gold_price():
@@ -54,4 +49,5 @@ def get_gold_price():
     return jsonify(data)
 
 # รัน Flask app
-app.run(host="0.0.0.0", port=5000)
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000)
