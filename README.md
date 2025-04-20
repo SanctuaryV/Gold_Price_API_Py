@@ -79,14 +79,6 @@ python app.py
 
 5. คลิก "Create Web Service" เพื่อ deploy แอป
 
-## Dependencies
-
-- Flask==2.2.3
-- Werkzeug==2.2.3
-- selenium==4.6.0
-- webdriver-manager==3.8.4
-
-
 ## License
 
 โปรเจกต์นี้ใช้ลิขสิทธิ์แบบ MIT - ดูรายละเอียดเพิ่มเติมที่ไฟล์ [LICENSE](LICENSE)
