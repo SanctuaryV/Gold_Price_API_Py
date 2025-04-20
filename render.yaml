@@ -1,7 +1,7 @@
 services:
   - type: web
-    name: gold-price-python
+    name: gold-price-playwright
     env: python
     plan: free
-    buildCommand: ""
+    buildCommand: "pip install -r requirements.txt && python playwright_install.py"
     startCommand: "python app.py"
